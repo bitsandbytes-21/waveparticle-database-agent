@@ -84,6 +84,7 @@ def main():
                             {"role": "system", "content": SYSTEM_PROMPT},
                             {"role": "user", "content": prompt},
                         ],
+                        timeout=60,
                     )
 
                     response_text = response.choices[0].message.content
