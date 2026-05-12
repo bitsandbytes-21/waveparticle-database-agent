@@ -30,7 +30,7 @@ Character: Iggy (lazy procrastinator)
 NAME:
 [Character name]
 
-RESONANCE TYPE:
+TYPE:
 [6-7 personality traits separated by · e.g., Harsh · Sarcastic · Strict · Obsessive · Analytical · Defiant · Loyal]
 Choose from: Haunted, Wounded, Defiant, Analytical, Obsessive, Tragic, Liberated, Visionary, Melancholic, Transcendent, Nurturing, Rebellious, Pragmatic, Ascendant, Harsh, Sarcastic, Strict, Mysterious, Playful, Skeptical, Compassionate, Determined, Enigmatic, Loyal, Creative, Isolated, Cynical, Driven, Resolute
 
@@ -100,8 +100,8 @@ def main():
                         line = line.strip()
                         if line.startswith('NAME:'):
                             name = line.replace('NAME:', '').strip()
-                        elif line.startswith('RESONANCE TYPE:'):
-                            resonance = line.replace('RESONANCE TYPE:', '').strip()
+                        elif line.startswith('TYPE:'):
+                            resonance = line.replace('TYPE:', '').strip()
                             current_section = 'resonance'
                         elif line.startswith('LAST OBSERVED'):
                             last_observed = line.replace('LAST OBSERVED', '').strip().lstrip('-: ')
