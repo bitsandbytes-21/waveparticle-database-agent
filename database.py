@@ -112,7 +112,19 @@ class DatabaseAdapter:
 
 def get_db():
     if 'db_adapter' not in st.session_state:
-        db_url = os.environ.get("DATABASE_URL") or st.secrets.get("DATABASE_URL", "characters.db")
-        st.session_state.db_adapter = DatabaseAdapter(db_url)
-        st.session_state.db_adapter.init_db()
+        db_url = os.environ.get("DATABASE_URL") or st.secrets.get("DATABASE_URL", "")
+
+        if not db_url:
+            db_url = "characters.db"
+
+        try:
+            adapter = DatabaseAdapter(db_url)
+            adapter.init_db()
+            st.session_state.db_adapter = adapter
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            adapter = DatabaseAdapter("characters.db")
+            adapter.init_db()
+            st.session_state.db_adapter = adapter
     return st.session_state.db_adapter
