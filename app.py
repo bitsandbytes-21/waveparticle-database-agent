@@ -38,7 +38,7 @@ LAST OBSERVED
 [Location, Year - their defining moment]
 
 ECHO(bio)
-[One profound quote the character would say about their mission/task]"""
+[One profound quote the character would say about their given task/mission]"""
 
 
 def main():
@@ -68,16 +68,14 @@ def main():
         )
 
         character_task = st.text_input(
-            "Character's Task (optional)",
+            "Character's Task",
             placeholder="e.g., Protect students from Voldemort",
             help="The character's known mission/task"
         )
 
-        if st.button("✨ Generate Character", type="primary", use_container_width=True) and character_name:
+        if st.button("✨ Generate Character", type="primary", use_container_width=True) and character_name and character_task:
             with st.spinner(f"Creating character profile..."):
-                prompt = f"Generate a character profile for: {character_name}"
-                if character_task:
-                    prompt += f"\nCharacter's task/mission: {character_task}"
+                prompt = f"Generate a character profile for: {character_name}\nCharacter's task/mission: {character_task}"
 
                 try:
                     response = client.chat.completions.create(
@@ -116,14 +114,15 @@ def main():
                             echo = line.strip('"').strip()
 
                     if name and resonance:
-                        char_id = db.save_character(name, resonance, last_observed, echo, character_task or "Not specified")
+                        char_id = db.save_character(name, resonance, last_observed, echo, character_task)
                         st.success(f"✅ Saved to database - ID: {char_id}")
 
                 except Exception as e:
                     st.error(f"Error: {str(e)}")
 
-        elif st.button("✨ Generate") and not character_name:
-            st.warning("Please enter a character name")
+        elif st.button("✨ Generate") and (not character_name or not character_task):
+            missing = "name" if not character_name else "task"
+            st.warning(f"Please enter a character {missing}")
 
     with tab2:
         st.header("📊 Character Database")
