@@ -1,41 +1,11 @@
-"""Character Profile Generator Agent - Gemini Latest"""
-
 import streamlit as st
-from google import genai
-from google.genai import types
+from openai import OpenAI
 import os
 from database import get_db
 
 st.set_page_config(page_title="Character Profile Agent", page_icon="🤖")
 
-MODELS = [
-    "gemini-2.0-flash-exp",
-    "gemini-1.5-pro",
-    "gemini-1.5-flash",
-    "gemini-2.0-pro",
-]
-
-AVAILABLE_MODEL = None
-
-
-def check_model(client, model_name):
-    try:
-        client.models.generate_content(
-            model=model_name,
-            contents="test",
-            config=types.GenerateContentConfig(max_output_tokens=1)
-        )
-        return True
-    except:
-        return False
-
-
-def find_available_model(api_key):
-    client = genai.Client(api_key=api_key)
-    for model in MODELS:
-        if check_model(client, model):
-            return model
-    return None
+DEEPSEEK_MODEL = "deepseek-chat"
 
 SYSTEM_PROMPT = """You are a Character Profile Generator. Create rich character profiles.
 
@@ -72,28 +42,17 @@ ECHO(bio)
 
 
 def main():
-    global AVAILABLE_MODEL
-
     st.title("🤖 Character Profile Agent")
     st.markdown("*Generate character profiles based on their stories and missions*")
 
-    api_key = os.environ.get("GOOGLE_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
+    api_key = os.environ.get("DEEPSEEK_API_KEY") or st.secrets.get("DEEPSEEK_API_KEY")
 
     if not api_key:
-        st.error("⚠️ Set GOOGLE_API_KEY in environment or secrets.toml")
-        st.info("Get Gemini key: https://aistudio.google.com/app/apikey")
+        st.error("⚠️ Set DEEPSEEK_API_KEY in environment or secrets.toml")
+        st.info("Get DeepSeek key: https://platform.deepseek.com/api_keys")
         return
 
-    if AVAILABLE_MODEL is None:
-        with st.spinner("Finding available Gemini model..."):
-            AVAILABLE_MODEL = find_available_model(api_key)
-        if AVAILABLE_MODEL:
-            st.success(f"Using model: {AVAILABLE_MODEL}")
-        else:
-            st.error("No available Gemini model found. Your API key may have restrictions.")
-            return
-
-    client = genai.Client(api_key=api_key)
+    client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
 
     db = get_db()
 
@@ -121,15 +80,15 @@ def main():
                     prompt += f"\nCharacter's task/mission: {character_task}"
 
                 try:
-                    response = client.models.generate_content(
-                        model=AVAILABLE_MODEL,
-                        contents=prompt,
-                        config=types.GenerateContentConfig(
-                            system_instruction=SYSTEM_PROMPT
-                        )
+                    response = client.chat.completions.create(
+                        model=DEEPSEEK_MODEL,
+                        messages=[
+                            {"role": "system", "content": SYSTEM_PROMPT},
+                            {"role": "user", "content": prompt},
+                        ],
                     )
 
-                    response_text = response.text
+                    response_text = response.choices[0].message.content
 
                     st.markdown("---")
                     st.markdown(response_text)
