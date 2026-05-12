@@ -1,0 +1,3 @@
+# Database for production deployment
+# Replace characters.db with PostgreSQL/MySQL connection string
+# Example: postgresql://user:password@host:5432/characters
