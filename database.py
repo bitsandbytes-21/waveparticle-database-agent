@@ -121,8 +121,9 @@ def get_db():
             adapter = DatabaseAdapter(db_url)
             adapter.init_db()
             st.session_state.db_adapter = adapter
-        except Exception:
+        except Exception as e:
             import traceback
+            st.error(f"Neon connection failed: {e}")
             traceback.print_exc()
             adapter = DatabaseAdapter("characters.db")
             adapter.init_db()
