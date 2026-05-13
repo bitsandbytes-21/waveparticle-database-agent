@@ -68,7 +68,7 @@ class DatabaseAdapter:
             """, (name, resonance_types, last_observed, echo, character_task))
             conn.commit()
             if self.is_postgres:
-                return cursor.fetchone()[0]
+                return cursor.fetchone()['id']
             return cursor.lastrowid
 
     def get_all_characters(self) -> List[Dict]:
