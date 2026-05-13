@@ -123,6 +123,8 @@ def main():
                                 resonance = line
                             else:
                                 resonance += '\n' + line
+                        elif current_section == 'last' and not last_observed:
+                            last_observed = line.lstrip('-: ')
                         elif current_section == 'echo' and not echo:
                             echo = line.strip('"').strip()
 
