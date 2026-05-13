@@ -33,6 +33,8 @@ LAST OBSERVED
 
 ECHO(bio)
 ["Profound one-sentence quote they would say"]
+
+Do not use em dashes (—) or en dashes (–) in your output. Use commas, periods, or parentheses instead.
 """
     response = model.generate_content(prompt)
     return parse_response(response.text)

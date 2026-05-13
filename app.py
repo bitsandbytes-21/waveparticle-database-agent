@@ -38,7 +38,9 @@ LAST OBSERVED
 [Location, Year - their defining moment]
 
 ECHO(bio)
-[One profound quote the character would say about their given task/mission]"""
+[One profound quote the character would say about their given task/mission]
+
+Do not use em dashes (—) or en dashes (–) in your output. Use commas, periods, or parentheses instead."""
 
 
 def main():
