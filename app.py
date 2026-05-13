@@ -146,19 +146,17 @@ def main():
     with tab2:
         st.header("📊 Character Database")
 
-        if st.button("🔍 View All"):
-            characters = db.get_all_characters()
-            st.success(f"Found {len(characters)} characters")
+        characters = db.get_all_characters()
 
-            for char in characters:
-                with st.expander(f"**{char['name']}** (ID: {char['id']})"):
-                    st.markdown(f"**RESONANCE:**\n{char['resonance_types']}")
-                    st.markdown(f"**LAST OBSERVED:** {char['last_observed']}")
-                    st.markdown(f"**ECHO:** *{char['echo']}*")
-                    st.markdown(f"**Task:** {char.get('character_task', 'N/A')}")
-                    if st.button(f"🗑️ Delete", key=f"del_{char['id']}"):
-                        db.delete_character(char['id'])
-                        st.rerun()
+        for char in characters:
+            with st.expander(f"**{char['name']}** (ID: {char['id']})"):
+                st.markdown(f"**RESONANCE:**\n{char['resonance_types']}")
+                st.markdown(f"**LAST OBSERVED:** {char['last_observed']}")
+                st.markdown(f"**ECHO:** *{char['echo']}*")
+                st.markdown(f"**Task:** {char.get('character_task', 'N/A')}")
+                if st.button(f"🗑️ Delete", key=f"del_{char['id']}"):
+                    db.delete_character(char['id'])
+                    st.rerun()
 
         st.divider()
 
