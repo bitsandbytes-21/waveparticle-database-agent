@@ -99,24 +99,34 @@ def main():
 
                     for line in lines:
                         line = line.strip()
+                        if not line:
+                            continue
                         if line.startswith('NAME:'):
                             name = line.replace('NAME:', '').strip()
-                        elif line.startswith('TYPE:'):
-                            resonance = line.replace('TYPE:', '').strip()
+                        elif line.startswith('TYPE:') or line.startswith('RESONANCE TYPE:') or line.startswith('RESONANCE:'):
+                            resonance = line.split(':', 1)[1].strip()
                             current_section = 'resonance'
                         elif line.startswith('LAST OBSERVED'):
-                            last_observed = line.replace('LAST OBSERVED', '').strip().lstrip('-: ')
+                            last_observed = line.split('LAST OBSERVED', 1)[1].strip().lstrip('-: ')
                             current_section = 'last'
                         elif line.startswith('ECHO'):
                             current_section = 'echo'
-                        elif current_section == 'resonance' and line and not line.startswith('LAST'):
+                            echo_text = line.split('ECHO', 1)[1].strip().lstrip('(bio):- ').strip('"').strip()
+                            if echo_text:
+                                echo = echo_text
+                        elif current_section == 'resonance' and not line.startswith('LAST'):
                             resonance += '\n' + line
-                        elif current_section == 'echo' and line:
+                        elif current_section == 'echo' and not echo:
                             echo = line.strip('"').strip()
 
                     if name and resonance:
                         char_id = db.save_character(name, resonance, last_observed, echo, character_task)
                         st.success(f"✅ Saved to database - ID: {char_id}")
+                    else:
+                        missing = []
+                        if not name: missing.append("NAME")
+                        if not resonance: missing.append("TYPE/RESONANCE")
+                        st.warning(f"Could not parse {', '.join(missing)} from response. Character was NOT saved.")
 
                 except Exception as e:
                     st.error(f"Error: {str(e)}")

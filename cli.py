@@ -51,10 +51,10 @@ def parse_response(text: str) -> dict:
             if current: result[current] = '\n'.join(buffer).strip()
             current = 'name'
             buffer = [line.replace('NAME:', '').strip()]
-        elif line.startswith('RESONANCE TYPE:'):
+        elif line.startswith('TYPE:') or line.startswith('RESONANCE TYPE:') or line.startswith('RESONANCE:'):
             if current: result[current] = '\n'.join(buffer).strip()
             current = 'resonance_types'
-            buffer = [line.replace('RESONANCE TYPE:', '').strip()]
+            buffer = [line.split(':', 1)[1].strip()]
         elif line.startswith('LAST OBSERVED'):
             if current: result[current] = '\n'.join(buffer).strip()
             current = 'last_observed'
@@ -62,7 +62,8 @@ def parse_response(text: str) -> dict:
         elif line.startswith('ECHO'):
             if current: result[current] = '\n'.join(buffer).strip()
             current = 'echo'
-            buffer = []
+            echo_text = line.split('ECHO', 1)[1].strip().lstrip('(bio):- ').strip('"').strip()
+            buffer = [echo_text] if echo_text else []
         elif current == 'echo' and line.startswith('"'):
             buffer.append(line.strip('"'))
         elif current:
