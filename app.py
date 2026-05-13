@@ -98,24 +98,31 @@ def main():
                     current_section = None
 
                     for line in lines:
-                        line = line.strip()
+                        line = line.strip().lstrip('-*_ ').rstrip(': ')
+                        lower = line.lower()
                         if not line:
                             continue
-                        if line.startswith('NAME:'):
-                            name = line.replace('NAME:', '').strip()
-                        elif line.startswith('TYPE:') or line.startswith('RESONANCE TYPE:') or line.startswith('RESONANCE:'):
-                            resonance = line.split(':', 1)[1].strip()
+                        if lower.startswith('name'):
+                            current_section = 'name'
+                            name = line.split(':', 1)[1].strip() if ':' in line else ''
+                        elif lower.startswith('type') or lower.startswith('resonance type') or lower.startswith('resonance'):
                             current_section = 'resonance'
-                        elif line.startswith('LAST OBSERVED'):
-                            last_observed = line.split('LAST OBSERVED', 1)[1].strip().lstrip('-: ')
+                            resonance = line.split(':', 1)[1].strip() if ':' in line else ''
+                        elif lower.startswith('last observed'):
                             current_section = 'last'
-                        elif line.startswith('ECHO'):
+                            last_observed = line.split(':', 1)[1].strip().lstrip('-: ') if ':' in line else ''
+                        elif lower.startswith('echo'):
                             current_section = 'echo'
-                            echo_text = line.split('ECHO', 1)[1].strip().lstrip('(bio):- ').strip('"').strip()
+                            echo_text = line.split(':', 1)[1].strip().strip('"').strip() if ':' in line else ''
                             if echo_text:
                                 echo = echo_text
-                        elif current_section == 'resonance' and not line.startswith('LAST'):
-                            resonance += '\n' + line
+                        elif current_section == 'name' and not name:
+                            name = line
+                        elif current_section == 'resonance' and not lower.startswith('last'):
+                            if not resonance:
+                                resonance = line
+                            else:
+                                resonance += '\n' + line
                         elif current_section == 'echo' and not echo:
                             echo = line.strip('"').strip()
 
@@ -127,6 +134,7 @@ def main():
                         if not name: missing.append("NAME")
                         if not resonance: missing.append("TYPE/RESONANCE")
                         st.warning(f"Could not parse {', '.join(missing)} from response. Character was NOT saved.")
+                        st.code(response_text, language="text")
 
                 except Exception as e:
                     st.error(f"Error: {str(e)}")

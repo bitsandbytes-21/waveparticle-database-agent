@@ -46,28 +46,30 @@ def parse_response(text: str) -> dict:
     buffer = []
 
     for line in lines:
-        line = line.strip()
-        if line.startswith('NAME:'):
+        raw = line.strip()
+        line = raw.lstrip('-*_ ').rstrip(': ')
+        lower = line.lower()
+        if not line:
+            continue
+        if lower.startswith('name'):
             if current: result[current] = '\n'.join(buffer).strip()
             current = 'name'
-            buffer = [line.replace('NAME:', '').strip()]
-        elif line.startswith('TYPE:') or line.startswith('RESONANCE TYPE:') or line.startswith('RESONANCE:'):
+            buffer = [line.split(':', 1)[1].strip()] if ':' in line else []
+        elif lower.startswith('type') or lower.startswith('resonance type') or lower.startswith('resonance'):
             if current: result[current] = '\n'.join(buffer).strip()
             current = 'resonance_types'
-            buffer = [line.split(':', 1)[1].strip()]
-        elif line.startswith('LAST OBSERVED'):
+            buffer = [line.split(':', 1)[1].strip()] if ':' in line else []
+        elif lower.startswith('last observed'):
             if current: result[current] = '\n'.join(buffer).strip()
             current = 'last_observed'
-            buffer = [line.replace('LAST OBSERVED', '').strip().lstrip('- ')]
-        elif line.startswith('ECHO'):
+            buffer = [line.split(':', 1)[1].strip().lstrip('- ')] if ':' in line else []
+        elif lower.startswith('echo'):
             if current: result[current] = '\n'.join(buffer).strip()
             current = 'echo'
-            echo_text = line.split('ECHO', 1)[1].strip().lstrip('(bio):- ').strip('"').strip()
+            echo_text = line.split(':', 1)[1].strip().strip('"').strip() if ':' in line else ''
             buffer = [echo_text] if echo_text else []
-        elif current == 'echo' and line.startswith('"'):
-            buffer.append(line.strip('"'))
         elif current:
-            buffer.append(line)
+            buffer.append(raw if current == 'echo' else line)
 
     if current: result[current] = '\n'.join(buffer).strip()
     return result
